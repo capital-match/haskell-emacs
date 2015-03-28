@@ -1,6 +1,6 @@
 (add-to-list 'exec-path "~/.cabal/bin")
 (add-to-list 'load-path "~/.emacs.d/haskell/")
-;(add-to-list 'exec-path "~/dev/spikes/haskell/ghci-ng/.cabal-sandbox/bin")
+(add-to-list 'exec-path "~/dev/spikes/haskell/ghci-ng/.cabal-sandbox/bin")
 
 ;(require 'package)
 ;(add-to-list 'package-archives
@@ -18,9 +18,11 @@
   (require 'use-package))
 
 (use-package cl-lib :ensure t)
+
 ;; use space for indentation, 2 spaces wide
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+
 ;; flx
 (use-package flx-ido
   :config
@@ -30,22 +32,25 @@
   ;; disable ido faces to see flx highlights.
   (setq ido-use-faces nil))
 
-;(use-package company-ghc :ensure t
-;    :init
-;    (add-to-list 'company-backends 'company-ghc))
-
-;(use-package ghc :ensure t)
+;; source: https://github.com/hlian/emacs-d/blob/master/init-packages.el
+(use-package company
+  :commands company-mode
+  :config (progn
+  (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+  (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)
+  (add-to-list 'company-backends 'company-ghc)
+  (custom-set-variables '(company-show-numbers t))
+  (custom-set-variables '(company-idle-delay 0))
+  (custom-set-variables '(company-frontends '(company-pseudo-tooltip-frontend)))))
 
 (autoload 'ghc-init "ghc" nil t)
 (autoload 'ghc-debug "ghc" nil t)
-
 
 (use-package haskell-mode :ensure haskell-mode
   :init
   (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
   (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
   (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
- ; (add-hook 'haskell-mode-hook (lambda () (ghc-comp-init)))
 
   :config
   (require 'haskell-flycheck)
