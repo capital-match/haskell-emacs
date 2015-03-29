@@ -7,7 +7,7 @@
 ;             '("marmalade" . "http://marmalade-repo.org/packages/"))
 ;(add-to-list 'package-archives
 ;             '("melpa" . "http://melpa.milkbox.net/packages/"))
-(setq use-package-verbose t)
+;(setq use-package-verbose t)
 (package-initialize)
 (if (not (package-installed-p 'use-package))
     (progn
@@ -63,12 +63,12 @@
    (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
    (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
 
-  (setq haskell-stylish-on-save nil)
+  (setq haskell-stylish-on-save t)
   (setq haskell-process-args-cabal-repl '("--ghc-option=-ferror-spans"))
-  ;                                           "--with-ghc=ghci-ng"))
+  ;;                                        "--with-ghc=ghci-ng"))
   ;ghci-ng keys 
   ;(define-key interactive-haskell-mode-map (kbd "M-.") 'haskell-mode-goto-loc)
-  ;(define-key interactive-haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at)
+  
   (define-key haskell-mode-map (kbd "C-,") 'haskell-move-nested-left)
   (define-key haskell-mode-map (kbd "C-.") 'haskell-move-nested-right)
   (define-key haskell-mode-map (kbd "C-c v c") 'haskell-cabal-visit-file)
@@ -80,4 +80,6 @@
 )
 
 (use-package haskell-interactive-mode
-:commands haskell-interactive-mode)
+:commands haskell-interactive-mode
+:config
+(define-key interactive-haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at))
