@@ -7,7 +7,7 @@
 ;             '("marmalade" . "http://marmalade-repo.org/packages/"))
 ;(add-to-list 'package-archives
 ;             '("melpa" . "http://melpa.milkbox.net/packages/"))
-
+(setq use-package-verbose t)
 (package-initialize)
 (if (not (package-installed-p 'use-package))
     (progn
@@ -43,19 +43,28 @@
   (custom-set-variables '(company-idle-delay 0))
   (custom-set-variables '(company-frontends '(company-pseudo-tooltip-frontend)))))
 
-(autoload 'ghc-init "ghc" nil t)
-(autoload 'ghc-debug "ghc" nil t)
+(use-package ghc
+:commands ghc-init ghc-debug)
+
 
 (use-package haskell-mode :ensure haskell-mode
-  :init
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
-  (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-  (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
-
   :config
-  (require 'haskell-flycheck)
+  (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+  (define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)
+  (custom-set-variables '(haskell-process-type 'cabal-repl))
+   (setq-default ghc-display-error 'other-buffer)
+   (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+  ; enable local lisp?
+  ; (add-hook 'haskell-mode-hook 'flycheck-haskell-setup)
+  ; (add-hook 'haskell-mode-hook 'flycheck-mode)
+   (add-hook 'haskell-mode-hook 'company-mode)
+   (add-hook 'haskell-mode-hook 'interactive-haskell-mode)
+   (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
+   (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+   (add-hook 'haskell-mode-hook (lambda () (ghc-init)))
+
   (setq haskell-stylish-on-save nil)
-  ; (setq haskell-process-args-cabal-repl '("--ghc-option=-ferror-spans"
+  (setq haskell-process-args-cabal-repl '("--ghc-option=-ferror-spans"))
   ;                                           "--with-ghc=ghci-ng"))
   ;ghci-ng keys 
   ;(define-key interactive-haskell-mode-map (kbd "M-.") 'haskell-mode-goto-loc)
@@ -67,4 +76,8 @@
   (define-key haskell-mode-map (kbd "C-x C-d") nil)
   (setq haskell-font-lock-symbols t)
   ;; Do this to get a variable in scope
-  (auto-complete-mode))
+  ;;(auto-complete-mode)
+)
+
+(use-package haskell-interactive-mode
+:commands haskell-interactive-mode)
