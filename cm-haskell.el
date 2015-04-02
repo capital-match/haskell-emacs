@@ -74,8 +74,3 @@
   ;; Do this to get a variable in scope
   ;;(auto-complete-mode)
 )
-
-(use-package haskell-interactive-mode
-:commands haskell-interactive-mode
-:config
-(define-key interactive-haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at))

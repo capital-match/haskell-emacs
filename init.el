@@ -5,5 +5,5 @@
 (add-to-list 'load-path "~/dev/spikes/haskell/my-emacs-mode/")
 
 (load-file "cm-haskell.el")
-(load-file "packages/magit.el")
+
 
