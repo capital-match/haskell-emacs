@@ -1,0 +1,3 @@
+[submodule "haskell-bin/ghc-mod"]
+	path = haskell-bin/ghc-mod
+	url = git://github.com/kazu-yamamoto/ghc-mod.git
