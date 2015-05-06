@@ -1,6 +1,4 @@
 (add-to-list 'exec-path "~/.cabal/bin")
-(add-to-list 'exec-path "~/dev/spikes/haskell/ghci-ng/.cabal-sandbox/bin")
-(add-to-list 'load-path "~/.emacs.d/haskell/")
 (menu-bar-mode 0)
 
 ;; package installation
@@ -8,7 +6,7 @@
 (add-to-list 'package-archives
              '("marmalade" . "http://marmalade-repo.org/packages/"))
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/"))
+             '("melpa-stable" . "http://stable.melpa.org/packages/"))
 
 (package-initialize)
 
@@ -41,12 +39,27 @@
 
 (add-hook 'find-file-hook 'sm-try-smerge t)
 
+; Show where we are in buffer menu http://stackoverflow.com/questions/2903426/display-path-of-file-in-status-bar
+(require 'uniquify)
+(setq uniquify-buffer-name-style 'reverse)
+
+(eval-after-load "which-func"
+  '(add-to-list 'which-func-modes 'haskell-mode))
+
+; Show where we are with a key http://stackoverflow.com/questions/3669511/the-function-to-show-current-files-full-path-in-mini-buffer
+(defun show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name))
+  (kill-new (file-truename buffer-file-name))
+)
+(global-set-key "\C-cz" 'show-file-name)
+
 
 ;; haskell coding
 (require 'auto-complete)
 (require 'haskell-mode)
 (require 'haskell-cabal)
-(require 'haskell-flycheck)
 
 (autoload 'ghc-init "ghc" nil t)
 
@@ -56,10 +69,8 @@
   '(progn
      (setq haskell-stylish-on-save t)
      (setq haskell-process-args-cabal-repl '("--ghc-option=-ferror-spans"
-                                             "--with-ghc=ghci-ng"))
-     ;ghci-ng keys 
-     ;(define-key interactive-haskell-mode-map (kbd "M-.") 'haskell-mode-goto-loc)
-     ;(define-key interactive-haskell-mode-map (kbd "C-c C-t") 'haskell-mode-show-type-at)
+                                             "--with-ghc=ghci-ng"))     
+     
      (define-key haskell-mode-map (kbd "C-,") 'haskell-move-nested-left)
      (define-key haskell-mode-map (kbd "C-.") 'haskell-move-nested-right)
      (define-key haskell-mode-map (kbd "C-c v c") 'haskell-cabal-visit-file)
@@ -68,14 +79,32 @@
      (setq haskell-font-lock-symbols t)
 
      ;; Do this to get a variable in scope
-     (auto-complete-mode)))
+     (auto-complete-mode)
 
+     ;; from http://pastebin.com/tJyyEBAS
+     (ac-define-source ghc-mod
+       '((depends ghc)
+         (candidates . (ghc-select-completion-symbol))
+         (symbol . "s")
+         (cache)))
+     
+     (defun my-ac-haskell-mode ()
+       (setq ac-sources '(ac-source-words-in-same-mode-buffers
+                          ac-source-dictionary
+                          ac-source-ghc-mod)))
+     (add-hook 'haskell-mode-hook 'my-ac-haskell-mode)
+     
+  
+     (defun my-haskell-ac-init ()
+       (when (member (file-name-extension buffer-file-name) '("hs" "lhs"))
+         (auto-complete-mode t)
+         (setq ac-sources '(ac-source-words-in-same-mode-buffers
+                            ac-source-dictionary
+                            ac-source-ghc-mod))))
+     (add-hook 'find-file-hook 'my-haskell-ac-init)))
 
 (add-hook 'haskell-mode-hook 'turn-on-haskell-decl-scan)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-
-(eval-after-load "which-func"
-  '(add-to-list 'which-func-modes 'haskell-mode))
 
 (eval-after-load "haskell-cabal"
     '(define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-compile))
@@ -166,16 +195,4 @@
       (setq x (+ x 1))
       ))
     )
-  )
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("d677ef584c6dfc0697901a44b885cc18e206f05114c8a3b7fde674fce6180879" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+  ) 
