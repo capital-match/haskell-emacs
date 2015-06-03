@@ -196,3 +196,8 @@
       ))
     )
   ) 
+(require 'uniquify) ; see part of path when switching buffers (e.g. Model.hs/Investor instead of Model.hs<1> etc.)
+; display full path of file in title bar, as well as login name and hostname
+(setq frame-title-format
+      (list (user-login-name) "@" (format "%s %%S: %%j " (system-name))
+        '(buffer-file-name "%f" (dired-directory dired-directory "%b"))))
